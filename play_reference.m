@@ -1,17 +1,17 @@
 function play_reference()
-
+% play 240 FPS video
 FULL_SCREEN_MODE = false;
 MAX_LOOPS = 2;  % <-- number of times to loop the entire video before exiting automatically
 
 KbName('UnifyKeyNames');
 Screen('Preference', 'SkipSyncTests', 1); % disable sync test for debugging
-
-if exist('config.mat','file')
-    cfg = load('config.mat');
-    ref_path = cfg.ref_path;
-else
-    error('config.mat not found. Please create it on this machine.');
-end
+ref_path = 'C:\Users\15142\Projects\motion-metric\all_sequences\attic\out_240fps_2s_h265_lossless_yuv444.mkv';
+% if exist('config.mat','file')
+%     cfg = load('config.mat');
+%     ref_path = cfg.ref_path;
+% else
+%     error('config.mat not found. Please create it on this machine.');
+% end
 assert(exist(ref_path,'file')==2, 'File not found: %s', ref_path);
 screenNumber = max(Screen('Screens'));
 
