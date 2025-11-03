@@ -22,7 +22,7 @@ function [quit, selection_made, watched_ref, watched_test1, chosen_video] = play
     while true
         % ---------- Play Video 1 ----------
         movie1 = Screen('OpenMovie', window, vid.paths{idxVideo1}, [], 1, 0, 4);
-        sub1 = ternary(idxVideo1 == 1, 'reference', 'test');
+        sub1 = ternary(idxVideo1 == 1, vid.labels{1}, vid.labels{2});
         maybe_flash_before_play(window, windowRect, movie1, get_flash_opts(vid), lbls{1}, sub1, debug);
         fprintf('\nvideo1: %s\n%s\n', sub1, vid.paths{idxVideo1});
 
@@ -35,7 +35,7 @@ function [quit, selection_made, watched_ref, watched_test1, chosen_video] = play
 
         % ---------- Play Video 2 ----------
         movie2 = Screen('OpenMovie', window, vid.paths{idxVideo2}, [], 1, 0, 4);
-        sub2 = ternary(idxVideo2 == 1, 'reference', 'test');
+        sub2 = ternary(idxVideo2 == 1, vid.labels{1}, vid.labels{2});
         maybe_flash_before_play(window, windowRect, movie2, get_flash_opts(vid), lbls{2}, sub2, debug);
         fprintf('video2: %s\n%s\n', sub2, vid.paths{idxVideo2});
 

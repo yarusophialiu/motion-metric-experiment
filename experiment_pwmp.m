@@ -1,15 +1,15 @@
 function experiment_pwmp()
     % For the output CSV file, only look at refPath_A, testPath_A
-    FULL_SCREEN_MODE = true; % true false
+    FULL_SCREEN_MODE = false; % true false
     TITANIUM = false; % true
-    DEBUG = true; % print reference and test on the screen
+    DEBUG = false; % print on the screen
 
     % userid = input('Enter user ID: ', 's');
     userid = 'test_id';
     session_time = datestr(now, 'yyyymmdd_HHMMSS');
     csv_folder = fullfile(pwd, 'results');
     csv_filename = fullfile(csv_folder, sprintf('fixed_%s_%s.csv', userid, session_time));
-    fprintf('csv_filename %s', csv_filename);
+    fprintf('csv_filename %s\n', csv_filename);
 
     % --- Window setup ---
     Screen('Preference', 'SkipSyncTests', 1);
@@ -39,19 +39,24 @@ function experiment_pwmp()
         gfxdisp_path = 'C:\Users\15142\Projects\gfxdisp';
         mm_project_path = 'C:\Users\15142\Projects\motion-metric';
     end
-    video_path = fullfile(mm_project_path, 'test_all_sequences_videos');
+    video_path = fullfile(mm_project_path, 'all_sequences_videos');
     addpath(fullfile(pwd, 'utils'));
     addpath(fullfile(gfxdisp_path, 'ASAP'));
-    parent_folder = fullfile(mm_project_path, 'test_all_sequences_videos');
-    condition_table = build_ref_test_table(parent_folder);
+    scene = find_all_scenes(video_path);
+    method = {'reference', 'restir', 'temporal-resolution-multiplexing'};
+    param = {'level0', 'level1', 'level2'};
+    condition_table = create_factorial_table( scene, method, param );
+    disp(condition_table);
+    % condition_table = build_ref_test_table(parent_folder);
     dot_pos_map = get_dot_positions(video_path);
+    disp(condition_table);
 
     sch = PwcmpASAPScheduler(csv_filename, userid, condition_table, {'scene'}); % Ignore the warning thrown by PwcmpASAPScheduler
     [sch, N_left] = sch.get_pair_left();
     fprintf('%d pairwise comparisons in this batch\n', N_left);
     % num_tests = N_left * 4;
     num_tests = 1;
-    
+
 
     for p = 1:num_tests
         watched_ref = false;
@@ -59,23 +64,30 @@ function experiment_pwmp()
         quit = false;
         selection_made = false;
         % returns two rows belonging to the same scene/path 1 2      
-        [sch, iA, iB] = sch.get_next_pair(); 
-        rowA = condition_table(iA,:);
-        % rowB = condition_table(iB,:);
+        [sch, stim_A, stim_B] = sch.get_next_pair(); % Get the next pair to compare
+        rowA = condition_table(stim_A,:);
+        rowB = condition_table(stim_B,:);
+    
+        fprintf( 1, 'Compare %d with %d\n', stim_A, stim_B );
+        display( condition_table([stim_A stim_B],:) );
 
-        fprintf('\nScene "%s"\n', rowA.scene{1});
-        fprintf('Ref path "%s"\n', rowA.refPath{1});
-        fprintf('Test path "%s"\n', rowA.testPath{1});
+        vid_idx = 0; 
+        
+        pathA = build_video_path(rowA, video_path, vid_idx);
+        pathB = build_video_path(rowB, video_path, vid_idx);
+        fprintf('A -> %s\n', pathA);
+        fprintf('B -> %s\n', pathB);
 
         try
-            vid.paths  = { rowA.refPath{1}, rowA.testPath{1} };  
-            vid.labels = { 'REFERENCE','TEST' };                
+            vid.paths  = { pathA, pathB };  
+            vid.labels = { 'Video 1','Video 2' };                
             vid.flash.enabled = true;
             vid.flash.duration = 1.0;   % seconds
             vid.flash.hz       = 4;     % flashes per second
             vid.flash.radius   = 12;    % pixels
-
-            key = rowA.refPath{1};
+            
+            fname = sprintf('video_%d.mp4', vid_idx);
+            key = fullfile(video_path, rowA.scene{1}, 'reference', fname);
             if isKey(dot_pos_map, key)
                 pos = dot_pos_map(key);
                 vid.flash.dotX = pos(1); % pixels windowRect(3) = display width, set to e.g. windowRect(3)/2
@@ -87,7 +99,7 @@ function experiment_pwmp()
             fprintf('dotX = %.2f, dotY = %.2f\n', vid.flash.dotX, vid.flash.dotY);
             fprintf('Window width  = %.2f\n', windowRect(3));
             fprintf('Window height = %.2f\n', windowRect(4));
-            
+
             % must watch each video once before input is accepted
             must_watch_all = true;        
             [quit, selection_made, watched_ref, watched_test1, chosen_video] = ...
@@ -96,7 +108,7 @@ function experiment_pwmp()
             if quit
                 break;  % ESC key
             end
-        
+
             if selection_made
                 fprintf('chosen_video: %s\n', chosen_video);
                 if strcmp(chosen_video, 'reference')
@@ -107,7 +119,7 @@ function experiment_pwmp()
                     sch = sch.set_pair_result(-1);  
                 end
             end
-        
+
         catch ME
             Screen('CloseAll');
             rethrow(ME);
