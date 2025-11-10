@@ -21,7 +21,11 @@ function [quit, selection_made, watched_ref, watched_test1, chosen_video] = play
     % === Replay loop (allow reshuffle when pressing Back key) ===
     while true
         % ---------- Play Video 1 ----------
-        movie1 = Screen('OpenMovie', window, vid.paths{idxVideo1}, [], 1, 0, 4);
+        disp(vid.paths{idxVideo1});
+        moviePath1 = vid.paths{idxVideo1};                 % could be string or char
+        moviePath1 = convertStringsToChars(moviePath1);     % ensure char row vector
+        assert(exist(moviePath1,'file')==2, 'File not found: %s', moviePath1);
+        movie1 = Screen('OpenMovie', window, moviePath1, [], 1, 0, 4);
         sub1 = ternary(idxVideo1 == 1, vid.labels{1}, vid.labels{2});
         maybe_flash_before_play(window, windowRect, movie1, get_flash_opts(vid), lbls{1}, sub1, debug);
         fprintf('\nvideo1: %s\n%s\n', sub1, vid.paths{idxVideo1});
@@ -34,7 +38,10 @@ function [quit, selection_made, watched_ref, watched_test1, chosen_video] = play
         show_noisy_screen(window, windowRect, 500);
 
         % ---------- Play Video 2 ----------
-        movie2 = Screen('OpenMovie', window, vid.paths{idxVideo2}, [], 1, 0, 4);
+        moviePath2 = vid.paths{idxVideo2};                 % could be string or char
+        moviePath2 = convertStringsToChars(moviePath2);     % ensure char row vector
+        assert(exist(moviePath2,'file')==2, 'File not found: %s', moviePath2);
+        movie2 = Screen('OpenMovie', window, moviePath2, [], 1, 0, 4);
         sub2 = ternary(idxVideo2 == 1, vid.labels{1}, vid.labels{2});
         maybe_flash_before_play(window, windowRect, movie2, get_flash_opts(vid), lbls{2}, sub2, debug);
         fprintf('video2: %s\n%s\n', sub2, vid.paths{idxVideo2});

@@ -13,7 +13,8 @@ Screen('Preference', 'SkipSyncTests', 1); % disable sync test for debugging
 % else
 %     error('config.mat not found. Please create it on this machine.');
 % end
-ref_path = 'D:\motion-metric-experiment\data\240fps\output_240fps_2s_crf5_yuv420.mp4' % output_2s.mov';
+% ref_path = 'D:\motion-metric-experiment\data\240fps\output_240fps_2s_crf5_yuv420.mp4' % output_2s.mov';
+ref_path = 'D:\motion-metric\pilot_videos\subway\temporal-resolution-multiplexing\level1\video_2.mp4';
 assert(exist(ref_path,'file')==2, 'File not found: %s', ref_path);
 screenNumber = max(Screen('Screens'));
 

@@ -26,7 +26,7 @@ function play_movie_once(window, windowRect, movie, labelText, subLabelText, lab
         dstRect = windowRect;
         % bilinear filtering: filterMode = 1
         % DrawTexture(window, tex, srcRect, dstRect, rot, filterMode, ...)
-        Screen('DrawTexture', window, tex, [], dstRect, [], 1);
+        Screen('DrawTexture', window, tex, [], dstRect, [], 0);
 
         Screen('TextSize', window, 50);
         Screen('DrawText', window, labelText, marginX, marginY, labelColor);
